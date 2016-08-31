@@ -1,0 +1,58 @@
+buildscript {
+  repositories {
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+  dependencies {
+    classpath 'net.researchgate:gradle-release:2.4.0'
+  }
+}
+
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'net.researchgate.release'
+
+  group 'ro.szzsa.utils'
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+
+  def nexusUrl = project.hasProperty('nexusUrl') ? nexusUrl : ''
+  def nexusUsername = project.hasProperty('nexusUsername') ? nexusUsername : ''
+  def nexusPassword = project.hasProperty('nexusPassword') ? nexusPassword : ''
+
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        repository(url: "${nexusUrl}/content/repositories/releases") {
+          authentication(userName: nexusUsername, password: nexusPassword)
+        }
+        snapshotRepository(url: "${nexusUrl}/content/repositories/snapshots") {
+          authentication(userName: nexusUsername, password: nexusPassword)
+        }
+      }
+    }
+  }
+
+  def releaseVersion = project.hasProperty('releaseVersion') ? releaseVersion : ''
+
+  release {
+    failOnUnversionedFiles = false
+    failOnCommitNeeded = false
+    tagTemplate = name + '-' + releaseVersion
+  }
+}
+
+apply plugin: 'java'
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '3.0'
+  distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
