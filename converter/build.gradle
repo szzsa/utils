@@ -1,0 +1,4 @@
+dependencies {
+  compile group: 'com.google.code.gson', name: 'gson', version: gsonVersion
+  testCompile group: 'junit', name: 'junit', version: junitVersion
+}

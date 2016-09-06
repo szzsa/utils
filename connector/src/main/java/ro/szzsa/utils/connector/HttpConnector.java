@@ -1,5 +1,11 @@
 package ro.szzsa.utils.connector;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
@@ -9,12 +15,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 import ro.szzsa.utils.connector.exception.ConnectorException;
 import ro.szzsa.utils.connector.log.Logger;
@@ -34,7 +34,7 @@ public class HttpConnector implements Connector {
     Throwable exception = null;
     CloseableHttpClient httpclient = HttpClients.createDefault();
     logger.debug("|---> Sending request to " + request.getUrl() + "\n" +
-                 (request.getMessage() == null ? "" : request.getMessage()));
+      (request.getMessage() == null ? "" : request.getMessage()));
     int connectionTimeout = 2000;
     while (currentRetries <= numberOfRetries) {
       try (CloseableHttpResponse httpResponse = httpclient.execute(buildHttpPost(request, connectionTimeout))) {
@@ -69,9 +69,9 @@ public class HttpConnector implements Connector {
   private HttpPost buildHttpPost(Request request, int connectionTimeout) throws UnsupportedEncodingException {
     HttpPost httpPost = new HttpPost(request.getUrl());
     RequestConfig config = RequestConfig.custom()
-        .setSocketTimeout(SOCKET_TIMEOUT)
-        .setConnectTimeout(connectionTimeout)
-        .build();
+      .setSocketTimeout(SOCKET_TIMEOUT)
+      .setConnectTimeout(connectionTimeout)
+      .build();
     httpPost.setConfig(config);
     if (request.getMessage() != null) {
       httpPost.addHeader("content-type", "application/json; charset=utf-8");
