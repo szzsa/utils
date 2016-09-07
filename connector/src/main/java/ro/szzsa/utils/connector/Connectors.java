@@ -9,7 +9,11 @@ public final class Connectors {
     throw new UnsupportedOperationException();
   }
 
-  public static Connector createHttpConnector() {
+  public static Connector createDefaultHttpConnector() {
     return new HttpConnector();
+  }
+
+  public static HttpConnectorBuilder customHttpConnector() {
+    return new HttpConnectorBuilder();
   }
 }
