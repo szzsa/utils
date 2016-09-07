@@ -13,28 +13,34 @@ public final class HttpConnectorBuilder {
     connector = new HttpConnector();
   }
 
-  public void setUsername(String username) {
+  public HttpConnectorBuilder setUsername(String username) {
     connector.setUsername(username);
+    return this;
   }
 
-  public void setPassword(String password) {
+  public HttpConnectorBuilder setPassword(String password) {
     connector.setPassword(password);
+    return this;
   }
 
-  public void setSocketTimeout(int socketTimeout) {
+  public HttpConnectorBuilder setSocketTimeout(int socketTimeout) {
     connector.setSocketTimeout(socketTimeout);
+    return this;
   }
 
-  public void setConnectionTimeout(int connectionTimeout) {
+  public HttpConnectorBuilder setConnectionTimeout(int connectionTimeout) {
     connector.setConnectionTimeout(connectionTimeout);
+    return this;
   }
 
-  public void setNumberOfRetries(int numberOfRetries) {
+  public HttpConnectorBuilder setNumberOfRetries(int numberOfRetries) {
     connector.setNumberOfRetries(numberOfRetries);
+    return this;
   }
 
-  public void setLogger(Logger logger) {
+  public HttpConnectorBuilder setLogger(Logger logger) {
     connector.setLogger(logger);
+    return this;
   }
 
   public HttpConnector build() {
