@@ -15,6 +15,7 @@ import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -58,7 +59,7 @@ public class HttpConnector implements Connector {
     logger.debug("|---> Sending request to " + request.getUrl() + "\n" +
                  (request.getMessage() == null ? "" : request.getMessage()));
     while (currentRetries <= numberOfRetries) {
-      try (CloseableHttpClient httpclient = buildHttpClient();
+      try (CloseableHttpClient httpclient = buildHttpClient(request.getUrl().startsWith("https"));
            CloseableHttpResponse httpResponse = httpclient.execute(buildHttpPost(request, connectionTimeout))) {
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         if (HttpStatus.SC_OK == statusCode) {
@@ -80,21 +81,28 @@ public class HttpConnector implements Connector {
     throw new ConnectorException("Cannot connect to " + request.getUrl(), exception);
   }
 
-  private CloseableHttpClient buildHttpClient()
+  private CloseableHttpClient buildHttpClient(boolean isSecure)
       throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+    HttpClientBuilder httpClientBuilder = HttpClients.custom();
     Header contentTypeHeader = new BasicHeader("content-type", "application/json; charset=utf-8");
-    SSLContext sslContext = new SSLContextBuilder()
-        .loadTrustMaterial((TrustStrategy) (chain, authType) -> true)
-        .build();
-    HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
-    SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-    credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-    return HttpClients.custom()
-        .setDefaultCredentialsProvider(credentialsProvider)
-        .setDefaultHeaders(Collections.singleton(contentTypeHeader))
-        .setSSLSocketFactory(socketFactory)
-        .build();
+    httpClientBuilder.setDefaultHeaders(Collections.singleton(contentTypeHeader));
+
+    if (isSecure) {
+      SSLContext sslContext = new SSLContextBuilder()
+          .loadTrustMaterial((TrustStrategy) (chain, authType) -> true)
+          .build();
+      HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
+      SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+      httpClientBuilder.setSSLSocketFactory(socketFactory);
+    }
+
+    if (username != null) {
+      CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+      credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+      httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+    }
+
+    return httpClientBuilder.build();
   }
 
   private String getResponseMessage(HttpEntity entity) throws ConnectorException {
