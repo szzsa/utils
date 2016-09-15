@@ -123,7 +123,7 @@ public class HttpConnector implements Connector {
         .build();
     httpPost.setConfig(config);
     if (request.getMessage() != null) {
-      httpPost.setEntity(new StringEntity(request.getMessage()));
+      httpPost.setEntity(new StringEntity(request.getMessage(), Charset.forName("utf-8")));
     }
     return httpPost;
   }
