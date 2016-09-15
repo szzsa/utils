@@ -1,5 +1,16 @@
 package ro.szzsa.utils.connector;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -20,19 +31,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 
 import ro.szzsa.utils.connector.exception.ConnectorException;
 import ro.szzsa.utils.connector.log.Logger;
@@ -57,7 +55,7 @@ public class HttpConnector implements Connector {
     int currentRetries = 0;
     Throwable exception = null;
     logger.debug("|---> Sending request to " + request.getUrl() + "\n" +
-                 (request.getMessage() == null ? "" : request.getMessage()));
+        (request.getMessage() == null ? "" : request.getMessage()));
     while (currentRetries <= numberOfRetries) {
       try (CloseableHttpClient httpclient = buildHttpClient(request.getUrl().startsWith("https"));
            CloseableHttpResponse httpResponse = httpclient.execute(buildHttpPost(request, connectionTimeout))) {
@@ -84,9 +82,6 @@ public class HttpConnector implements Connector {
   private CloseableHttpClient buildHttpClient(boolean isSecure)
       throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
     HttpClientBuilder httpClientBuilder = HttpClients.custom();
-    Header contentTypeHeader = new BasicHeader("content-type", "application/json; charset=utf-8");
-    httpClientBuilder.setDefaultHeaders(Collections.singleton(contentTypeHeader));
-
     if (isSecure) {
       SSLContext sslContext = new SSLContextBuilder()
           .loadTrustMaterial((TrustStrategy) (chain, authType) -> true)
@@ -120,6 +115,8 @@ public class HttpConnector implements Connector {
 
   private HttpPost buildHttpPost(Request request, int connectionTimeout) throws UnsupportedEncodingException {
     HttpPost httpPost = new HttpPost(request.getUrl());
+    Header contentTypeHeader = new BasicHeader("content-type", "application/json; charset=utf-8");
+    httpPost.setHeader(contentTypeHeader);
     RequestConfig config = RequestConfig.custom()
         .setSocketTimeout(socketTimeout)
         .setConnectTimeout(connectionTimeout)
