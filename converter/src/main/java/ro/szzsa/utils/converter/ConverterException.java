@@ -3,7 +3,7 @@ package ro.szzsa.utils.converter;
 /**
  *
  */
-public class ConverterException extends Exception {
+public class ConverterException extends RuntimeException {
 
   public ConverterException(Throwable cause) {
     super(cause);

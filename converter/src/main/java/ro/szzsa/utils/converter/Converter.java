@@ -5,7 +5,7 @@ package ro.szzsa.utils.converter;
  */
 public interface Converter {
 
-  String toString(Object object) throws ConverterException;
+  String toString(Object object);
 
-  <T> T fromString(String string, Class<T> type) throws ConverterException;
+  <T> T fromString(String string, Class<T> type);
 }

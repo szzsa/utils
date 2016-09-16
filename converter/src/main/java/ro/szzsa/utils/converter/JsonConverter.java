@@ -16,7 +16,7 @@ public class JsonConverter implements Converter {
   }
 
   @Override
-  public String toString(Object object) throws ConverterException {
+  public String toString(Object object) {
     try {
       return gson.toJson(object);
     } catch (JsonParseException e) {
@@ -25,7 +25,7 @@ public class JsonConverter implements Converter {
   }
 
   @Override
-  public <T> T fromString(String json, Class<T> type) throws ConverterException {
+  public <T> T fromString(String json, Class<T> type) {
     try {
       return gson.fromJson(json, type);
     } catch (JsonParseException e) {
