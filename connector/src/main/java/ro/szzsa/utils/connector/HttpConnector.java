@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
@@ -49,13 +50,14 @@ public class HttpConnector implements Connector {
   private String username;
 
   private String password;
+  private String apiKey;
 
   @Override
   public String sendRequest(Request request) throws ConnectorException {
     int currentRetries = 0;
     Throwable exception = null;
     logger.debug("|---> Sending request to " + request.getUrl() + "\n" +
-        (request.getMessage() == null ? "" : request.getMessage()));
+      (request.getMessage() == null ? "" : request.getMessage()));
     while (currentRetries <= numberOfRetries) {
       try (CloseableHttpClient httpclient = buildHttpClient(request.getUrl().startsWith("https"));
            CloseableHttpResponse httpResponse = httpclient.execute(buildHttpPost(request, connectionTimeout))) {
@@ -80,18 +82,21 @@ public class HttpConnector implements Connector {
   }
 
   private CloseableHttpClient buildHttpClient(boolean isSecure)
-      throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+    throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
     HttpClientBuilder httpClientBuilder = HttpClients.custom();
     if (isSecure) {
       SSLContext sslContext = new SSLContextBuilder()
-          .loadTrustMaterial((TrustStrategy) (chain, authType) -> true)
-          .build();
+        .loadTrustMaterial((TrustStrategy) (chain, authType) -> true)
+        .build();
       HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
       SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
       httpClientBuilder.setSSLSocketFactory(socketFactory);
     }
 
-    if (username != null) {
+    if (apiKey != null) {
+      Header apiKeyAuthHeader = new BasicHeader("Authorization", "key=" + apiKey);
+      httpClientBuilder.setDefaultHeaders(Collections.singleton(apiKeyAuthHeader));
+    } else if (username != null) {
       CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
       credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
       httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
@@ -118,9 +123,9 @@ public class HttpConnector implements Connector {
     Header contentTypeHeader = new BasicHeader("content-type", "application/json; charset=utf-8");
     httpPost.setHeader(contentTypeHeader);
     RequestConfig config = RequestConfig.custom()
-        .setSocketTimeout(socketTimeout)
-        .setConnectTimeout(connectionTimeout)
-        .build();
+      .setSocketTimeout(socketTimeout)
+      .setConnectTimeout(connectionTimeout)
+      .build();
     httpPost.setConfig(config);
     if (request.getMessage() != null) {
       httpPost.setEntity(new StringEntity(request.getMessage(), Charset.forName("utf-8")));
@@ -150,5 +155,9 @@ public class HttpConnector implements Connector {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public void setApiKey(String apiKey) {
+    this.apiKey = apiKey;
   }
 }

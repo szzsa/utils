@@ -13,6 +13,11 @@ public final class HttpConnectorBuilder {
     connector = new HttpConnector();
   }
 
+  public HttpConnectorBuilder setApiKey(String key) {
+    connector.setApiKey(key);
+    return this;
+  }
+
   public HttpConnectorBuilder setUsername(String username) {
     connector.setUsername(username);
     return this;
