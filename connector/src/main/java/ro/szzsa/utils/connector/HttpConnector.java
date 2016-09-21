@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
@@ -50,6 +49,7 @@ public class HttpConnector implements Connector {
   private String username;
 
   private String password;
+
   private String apiKey;
 
   @Override
@@ -60,7 +60,7 @@ public class HttpConnector implements Connector {
       (request.getMessage() == null ? "" : request.getMessage()));
     while (currentRetries <= numberOfRetries) {
       try (CloseableHttpClient httpclient = buildHttpClient(request.getUrl().startsWith("https"));
-           CloseableHttpResponse httpResponse = httpclient.execute(buildHttpPost(request, connectionTimeout))) {
+           CloseableHttpResponse httpResponse = httpclient.execute(buildHttpPost(request))) {
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         if (HttpStatus.SC_OK == statusCode) {
           String response = getResponseMessage(httpResponse.getEntity());
@@ -93,10 +93,7 @@ public class HttpConnector implements Connector {
       httpClientBuilder.setSSLSocketFactory(socketFactory);
     }
 
-    if (apiKey != null) {
-      Header apiKeyAuthHeader = new BasicHeader("Authorization", "key=" + apiKey);
-      httpClientBuilder.setDefaultHeaders(Collections.singleton(apiKeyAuthHeader));
-    } else if (username != null) {
+    if (username != null) {
       CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
       credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
       httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
@@ -118,10 +115,14 @@ public class HttpConnector implements Connector {
     return response;
   }
 
-  private HttpPost buildHttpPost(Request request, int connectionTimeout) throws UnsupportedEncodingException {
+  private HttpPost buildHttpPost(Request request) throws UnsupportedEncodingException {
     HttpPost httpPost = new HttpPost(request.getUrl());
     Header contentTypeHeader = new BasicHeader("content-type", "application/json; charset=utf-8");
-    httpPost.setHeader(contentTypeHeader);
+    httpPost.addHeader(contentTypeHeader);
+    if (apiKey != null) {
+      Header apiKeyAuthHeader = new BasicHeader("Authorization", "key=" + apiKey);
+      httpPost.addHeader(apiKeyAuthHeader);
+    }
     RequestConfig config = RequestConfig.custom()
       .setSocketTimeout(socketTimeout)
       .setConnectTimeout(connectionTimeout)
