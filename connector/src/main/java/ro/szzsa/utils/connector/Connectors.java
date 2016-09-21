@@ -16,4 +16,12 @@ public final class Connectors {
   public static HttpConnectorBuilder customHttpConnector() {
     return new HttpConnectorBuilder();
   }
+
+  public static HttpConnectorBuilder withCredentials(String username, String password) {
+    return new HttpConnectorBuilder(username, password);
+  }
+
+  public static HttpConnectorBuilder withApiKey(String apiKey) {
+    return new HttpConnectorBuilder(apiKey);
+  }
 }

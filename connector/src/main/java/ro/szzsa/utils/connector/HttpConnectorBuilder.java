@@ -13,19 +13,15 @@ public final class HttpConnectorBuilder {
     connector = new HttpConnector();
   }
 
-  public HttpConnectorBuilder setApiKey(String key) {
-    connector.setApiKey(key);
-    return this;
-  }
-
-  public HttpConnectorBuilder setUsername(String username) {
+  public HttpConnectorBuilder(String username, String password) {
+    connector = new HttpConnector();
     connector.setUsername(username);
-    return this;
+    connector.setPassword(password);
   }
 
-  public HttpConnectorBuilder setPassword(String password) {
-    connector.setPassword(password);
-    return this;
+  public HttpConnectorBuilder(String apiKey) {
+    connector = new HttpConnector();
+    connector.setApiKey(apiKey);
   }
 
   public HttpConnectorBuilder setSocketTimeout(int socketTimeout) {

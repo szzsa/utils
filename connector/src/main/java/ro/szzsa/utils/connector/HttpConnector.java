@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +14,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -106,7 +107,7 @@ public class HttpConnector implements Connector {
     String response;
     try (InputStream inputStream = entity.getContent()) {
       StringWriter writer = new StringWriter();
-      IOUtils.copy(inputStream, writer, Charset.forName("utf-8"));
+      IOUtils.copy(inputStream, writer, StandardCharsets.UTF_8);
       response = writer.toString();
       EntityUtils.consume(entity);
     } catch (IOException e) {
@@ -117,10 +118,10 @@ public class HttpConnector implements Connector {
 
   private HttpPost buildHttpPost(Request request) throws UnsupportedEncodingException {
     HttpPost httpPost = new HttpPost(request.getUrl());
-    Header contentTypeHeader = new BasicHeader("content-type", "application/json; charset=utf-8");
+    Header contentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=" + StandardCharsets.UTF_8);
     httpPost.addHeader(contentTypeHeader);
     if (apiKey != null) {
-      Header apiKeyAuthHeader = new BasicHeader("Authorization", "key=" + apiKey);
+      Header apiKeyAuthHeader = new BasicHeader(HttpHeaders.AUTHORIZATION, "key=" + apiKey);
       httpPost.addHeader(apiKeyAuthHeader);
     }
     RequestConfig config = RequestConfig.custom()
@@ -129,7 +130,7 @@ public class HttpConnector implements Connector {
       .build();
     httpPost.setConfig(config);
     if (request.getMessage() != null) {
-      StringEntity entity = new StringEntity(request.getMessage(), Charset.forName("utf-8"));
+      StringEntity entity = new StringEntity(request.getMessage(), StandardCharsets.UTF_8);
       entity.setContentType(contentTypeHeader);
       httpPost.setEntity(entity);
     }
