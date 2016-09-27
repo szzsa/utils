@@ -10,18 +10,17 @@ buildscript {
 }
 
 subprojects {
-  apply plugin: 'java'
   apply plugin: 'maven'
   apply plugin: 'net.researchgate.release'
 
   group 'ro.szzsa.utils'
 
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
-
   repositories {
     mavenCentral()
     jcenter()
+    maven {
+      url "http://nexus2-szzs.rhcloud.com/content/repositories/releases"
+    }
   }
 
   def nexusUrl = project.hasProperty('nexusUrl') ? nexusUrl : ''
@@ -50,9 +49,14 @@ subprojects {
   }
 }
 
-apply plugin: 'java'
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}
+
+task build() {
+}
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '3.0'
+  gradleVersion = "3.1"
   distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }

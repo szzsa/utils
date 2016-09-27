@@ -1,3 +1,5 @@
 rootProject.name = 'utils'
-include 'connector'
+include 'connector-commons'
+include 'httpconnector'
+include 'httpconnector-android'
 include 'converter'

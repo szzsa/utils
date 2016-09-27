@@ -4,6 +4,5 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-  compile group: 'com.google.code.gson', name: 'gson', version: gsonVersion
   testCompile group: 'junit', name: 'junit', version: junitVersion
 }
