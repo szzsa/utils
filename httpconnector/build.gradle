@@ -4,7 +4,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-  compile project(':connector-commons')
+  compile group: 'ro.szzsa.utils', name: 'connector-commons', version: connectorCommonsVersion
   compile group: 'org.apache.httpcomponents', name: 'httpclient', version: httpClientVersion
   compile group: 'commons-io', name: 'commons-io', version: commonsIOVerion
   testCompile group: 'junit', name: 'junit', version: junitVersion
