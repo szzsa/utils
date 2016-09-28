@@ -1,6 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="ro.szzsa.utils.connector">
+<manifest package="ro.szzsa.utils.connector">
 
-  <application android:label="httpcomponents-android"/>
+  <application/>
 
 </manifest>
