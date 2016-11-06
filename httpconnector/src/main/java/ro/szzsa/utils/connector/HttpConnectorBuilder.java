@@ -1,5 +1,7 @@
 package ro.szzsa.utils.connector;
 
+import java.nio.charset.Charset;
+
 import ro.szzsa.utils.connector.log.Logger;
 
 /**
@@ -41,6 +43,11 @@ public final class HttpConnectorBuilder {
 
   public HttpConnectorBuilder setLogger(Logger logger) {
     connector.setLogger(logger);
+    return this;
+  }
+
+  public HttpConnectorBuilder setResponseEncoding(Charset charset) {
+    connector.setResponseEncoding(charset);
     return this;
   }
 

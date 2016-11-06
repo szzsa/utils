@@ -1,16 +1,5 @@
 package ro.szzsa.utils.connector;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -33,6 +22,19 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
 import ro.szzsa.utils.connector.exception.ConnectorException;
 import ro.szzsa.utils.connector.log.Logger;
 import ro.szzsa.utils.connector.log.Loggers;
@@ -52,6 +54,8 @@ public class HttpConnector implements Connector {
   private String password;
 
   private String apiKey;
+
+  private Charset responseEncoding = StandardCharsets.UTF_8;
 
   @Override
   public String sendRequest(Request request) throws ConnectorException {
@@ -107,7 +111,7 @@ public class HttpConnector implements Connector {
     String response;
     try (InputStream inputStream = entity.getContent()) {
       StringWriter writer = new StringWriter();
-      IOUtils.copy(inputStream, writer, StandardCharsets.UTF_8);
+      IOUtils.copy(inputStream, writer, responseEncoding);
       response = writer.toString();
       EntityUtils.consume(entity);
     } catch (IOException e) {
@@ -163,5 +167,9 @@ public class HttpConnector implements Connector {
 
   public void setApiKey(String apiKey) {
     this.apiKey = apiKey;
+  }
+
+  public void setResponseEncoding(Charset responseEncoding) {
+    this.responseEncoding = responseEncoding;
   }
 }
